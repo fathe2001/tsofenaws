@@ -1,0 +1,90 @@
+import json
+import random
+from pathlib import Path
+
+def creat_keys():
+    letters = "qwertyuiopasdfghjklzxcvbnm"
+    let_lst = list(letters)
+    random.shuffle(let_lst)
+    shuffeld = ''.join(let_lst)
+    encryption =  {letters[i]:shuffeld[i] for i in range(len(letters))}
+    decryption =  {shuffeld[i]:letters[i] for i in range(len(letters))}
+    return encryption,decryption
+
+
+
+def enc_info(encryption, decryption):
+    print("encryption")
+    print(encryption)
+    print("decryption")
+    print(decryption)
+    return
+
+def enc_load(key_filname):
+    path_to_file = key_filname
+    path = Path(path_to_file)
+    if path.is_file():
+        with open(key_filname) as json_file:
+            data = json.load(json_file)
+        print("Key from file %s loaded",key_filname)
+    else:
+        print("No such key")
+
+def enc_newkey(key_n):
+    print("A new key called %s was created", key_n)
+
+def enc_save(lis_key_json, savefile):
+    with open(savefile, "w") as outfile:
+        json.dump(lis_key_json, outfile)
+    return
+
+def encrypt(filein, fileout, encryption):
+    with open(fileout, "a") as o:
+        o.write("")
+    with open(filein, "r") as f:
+        for line in f:
+            for word in line.split(" "):
+                for letter in word:
+                    o.write(encryption[letter])
+def decrypt(filein, fileout, decryption):
+    with open(fileout, "a") as o:
+        o.write("")
+    with open(filein, "r") as f:
+        for line in f:
+            for word in line.split(" "):
+                for letter in word:
+                    o.write(decryption[letter])
+
+if __name__ == '__main__':
+    keys = creat_keys()
+    encryption, decryption = keys[0], keys[1]
+    lis_key_json = [encryption,decryption]
+    cli_flag = False
+    while not cli_flag:
+        cmd_str = input('subs>')
+        cmd = cmd_str.split()
+        if cmd and cmd[0] == 'done':
+            cli_flag = True
+        if cmd:
+            if cmd[0] == "newkey":
+                if cmd[1]:
+                    keys = creat_keys()
+                    encryption, decryption = keys[0], keys[1]
+                    lis_key_json = [encryption, decryption]
+                    enc_newkey(cmd[1])
+            if cmd[0] == 'info':
+                enc_info(encryption, decryption)
+            if cmd[0] == "load":
+                if cmd[1]:
+                    enc_load(cmd[1])
+            if cmd[0] == "save":
+                if cmd[1]:
+                    enc_save(lis_key_json,cmd[1])
+            if cmd[0] == "enc":
+                if cmd[1] and cmd[2]:
+                    encrypt(cmd[1], cmd[2], encryption)
+            if cmd[0] == "dec":
+                if cmd[1] and cmd[2]:
+                    decrypt(cmd[1], cmd[2], decryption)
+	if cmd[0]== "done":
+		cli_flag = True
